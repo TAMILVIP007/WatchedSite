@@ -7,7 +7,7 @@ def get_vidcloud_stream(id, m3u8=False):
         media_server = (
             BeautifulSoup(
                 get(
-                    "https://www.2embed.to/embed/imdb/movie?id={}".format(id),
+                    f"https://www.2embed.to/embed/imdb/movie?id={id}",
                     headers={"user-agent": "Mozilla/5.0"},
                 ).text,
                 "html.parser",
@@ -23,18 +23,22 @@ def get_vidcloud_stream(id, m3u8=False):
             params={"id": media_server, "_token": recaptcha_resp},
         )
         vid_id = vidcloudresp.json()["link"].split("/")[-1]
-        rbstream = "https://rabbitstream.net/embed/m-download/{}".format(
-            vid_id)
+        rbstream = f"https://rabbitstream.net/embed/m-download/{vid_id}"
         soup = BeautifulSoup(get(rbstream).text, "html.parser")
-        return [
-            a["href"] for a in soup.find("div", class_="download-list").find_all("a")
-        ] if not m3u8 else vid_id
+        return (
+            vid_id
+            if m3u8
+            else [
+                a["href"]
+                for a in soup.find("div", class_="download-list").find_all("a")
+            ]
+        )
     except:
         return None
 
 
 def get_m3u8_rabbitstream(id):
-    url = "https://rabbitstream.net/embed-5/{}".format(id)
+    url = f"https://rabbitstream.net/embed-5/{id}"
     print(url)
     headers = {
         "referer": "https://www.2embed.to/",
